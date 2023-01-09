@@ -1,5 +1,5 @@
 {
-  "name": "bananas",
+  "name": "outline-postprocessing",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,6 @@
     "@react-three/fiber": "^8.8.10",
     "@react-three/postprocessing": "^2.7.0",
     "@types/three": "^0.144.0",
-    "glslify": "^7.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.145.0"

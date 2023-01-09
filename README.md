@@ -1,1 +1,1 @@
-don't mind me, just fucking around with r3f. and poorly implementing this https://cs.stanford.edu/people/eroberts/courses/soco/projects/2008-09/modeling-natural-systems/boids.html
+a poor attempt at an outline postprocessing shader
