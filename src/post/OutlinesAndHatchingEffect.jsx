@@ -236,6 +236,8 @@ class OutlinesAndHatchingEffect extends Effect {
 			])
 		});
 
+    this.camera = camera;
+
 		this.colorPass = new RenderPass(scene, camera);
 		this.normalPass = new NormalPass(scene, camera);
 		this.normalPass.depthBuffer = false;
@@ -263,7 +265,10 @@ class OutlinesAndHatchingEffect extends Effect {
 	}
 
 	update(renderer) {
+    
+    this.camera.layers.disable(1)
 		this.normalPass.render(renderer, null, this.renderTarget);
+    this.camera.layers.enable(1)
 		this.colorPass.render(renderer, this.renderTarget, this.renderTarget);
 	}
 }

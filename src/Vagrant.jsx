@@ -169,10 +169,11 @@ const Engine = () => {
     if ( color.a == 0.0 ) discard;
   }
   `;
+
 	useFrame(({clock, camera}) => {
 		engineUniforms.time.value = clock.elapsedTime
     engineUniforms.cameraPos.value = camera.position
-	})
+	});
 
 	return <group position={[3.2, 1, -1.95]} scale={[4, 3, 3]}>
 		<pointLight
@@ -186,7 +187,7 @@ const Engine = () => {
       // shadow-camera-top={5}
       // shadow-camera-bottom={-5}
       args={['blue', 10, 30, 4]}/>
-    <mesh>
+    <mesh layers={1}>
       <boxGeometry args={[1, 1, 1]} />
       <rawShaderMaterial 
         glslVersion={GLSL3} 
@@ -228,7 +229,10 @@ export function Vagrant(props) {
       <Engine />
       <Sphere />
       <Fire position={[1.2, 3.6, 4.5]}/>
-      <group position={[0.67, 0.55, 0.45]} scale={[2.58, 2.08, 2.08]}>
+      <group
+        position={[0.67, 0.55, 0.45]} 
+        scale={[2.58, 2.08, 2.08]}
+      >
         <primitive object={nodes.spine} />
         <group position={[0, -0.01, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[0.39, 0.48, 0.48]}>
           <mesh castShadow receiveShadow geometry={nodes.Sphere002_1.geometry} material={materials.eyes} />

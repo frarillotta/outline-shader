@@ -2,6 +2,7 @@
 import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import {shaderV2 as orthoVS} from './post/shaders/ortho-vs';
+import { useRef } from "react";
 
 const fireBillboardUniforms = {
 	time: {
@@ -68,7 +69,7 @@ export const Fire = (props) => {
 		
 		
 		void main() {
-			gl_FragColor.a = 1.;
+			gl_FragColor.a = .9;
 			vec2 lUv = vUv;
 		
 			lUv.y -= time / 2.5;
@@ -106,6 +107,7 @@ export const Fire = (props) => {
 			}
 		}
 	`;
+	const ref = useRef();
 
 	useFrame(({clock}) => {
 		fireBillboardUniforms.time.value = clock.elapsedTime
@@ -130,10 +132,10 @@ export const Fire = (props) => {
 			<sphereBufferGeometry args={[0.4]} />
 			<meshBasicMaterial color="white" />
 		</mesh> */}
-		<Billboard>
-			<mesh scale={[2, 4, 2]}>
+		<Billboard  >
+			<mesh layers={1} ref={ref}  scale={[2, 4, 2]}>
 				<planeGeometry computeVertexNormals={false} args={[1, 1]} />
-				<shaderMaterial uniforms={fireBillboardUniforms} fragmentShader={fragmentShader} vertexShader={orthoVS}/>
+				<shaderMaterial transparent={true} uniforms={fireBillboardUniforms} fragmentShader={fragmentShader} vertexShader={orthoVS}/>
 			</mesh>
 		</Billboard>
 	</group>

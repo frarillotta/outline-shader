@@ -1,14 +1,13 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useRef, useState, useLayoutEffect } from "react";
-import { OrbitControls } from "@react-three/drei";
-import { BufferAttribute, Vector3 } from "three";
+import { OrbitControls, Stats } from "@react-three/drei";
+import { BufferAttribute, Vector3, Color, UniformsLib } from "three";
 import { EffectComposer } from "@react-three/postprocessing";
 import OutlinesAndHatchingEffect from "./post/OutlinesAndHatchingEffect";
 import { SimplexNoise } from "three/examples/jsm/math/SimplexNoise";
 import { Vagrant } from "./Vagrant";
 
 const Ground = () => {
-
 	const groundRef = useRef();
 	const heightfieldRef = useRef([]);
 	useLayoutEffect(() => {
@@ -38,6 +37,93 @@ const Ground = () => {
 	);
 };
 
+
+const toonVertexShader = `
+
+#include <common>
+#include <shadowmap_pars_vertex>
+	varying vec3 vNormal;
+	varying vec3 vViewDir;
+
+	void main() {
+		
+		#include <beginnormal_vertex>
+		#include <defaultnormal_vertex>
+	
+		#include <begin_vertex>
+	
+		#include <worldpos_vertex>
+		#include <shadowmap_vertex>
+		vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+		vec4 viewPosition = viewMatrix * modelPosition;
+		vec4 clipPosition = projectionMatrix * viewPosition;
+		vNormal = normalize(normalMatrix * normal);
+		vViewDir = normalize(-viewPosition.xyz);
+		gl_Position = clipPosition;
+	}
+`;
+
+const toonFragmentShader = `
+#include <common>
+#include <packing>
+#include <lights_pars_begin>
+#include <shadowmap_pars_fragment>
+#include <shadowmask_pars_fragment>
+
+uniform vec3 uColor;
+uniform float uGlossiness;
+
+varying vec3 vNormal;
+varying vec3 vViewDir;
+
+void main() {
+
+	DirectionalLightShadow directionalShadow = directionalLightShadows[0];
+
+	float shadow = getShadow(
+		directionalShadowMap[0],
+		directionalShadow.shadowMapSize,
+		directionalShadow.shadowBias,
+		directionalShadow.shadowRadius,
+		vDirectionalShadowCoord[0]
+	);
+	float NdotL = dot(vNormal, directionalLights[0].direction);
+	float lightIntensity = smoothstep(0.0, 0.01, NdotL);
+	vec3 directionalLight = directionalLights[0].color * lightIntensity;
+
+	vec3 halfVector = normalize(directionalLights[0].direction + vViewDir);
+	float NdotH = dot(vNormal, halfVector);
+
+	float specularIntensity = pow(NdotH * lightIntensity, 1000. / uGlossiness);
+	float speculatIntensitySmooth = smoothstep(0.05, 0.1, specularIntensity);
+
+	vec3 specular = speculatIntensitySmooth * directionalLights[0].color;
+
+	float rimDot = 1. - dot(vViewDir, vNormal);
+	float rimAmount = 0.6;
+
+	float rimThreshold = .2;
+	float rimIntensity = rimDot * pow(NdotL, rimThreshold);
+	rimIntensity = smoothstep(rimAmount - .01, rimAmount + .01, rimIntensity);
+
+	vec3 rim = rimIntensity * directionalLights[0].color;
+	gl_FragColor = vec4(uColor * (ambientLightColor + directionalLight + specular + rim), 1.0);
+
+}
+`;
+
+const CustomToonShaderMaterial = () => {
+	return <shaderMaterial 
+		vertexShader={toonVertexShader}
+		fragmentShader={toonFragmentShader}
+		uniforms={{
+			...UniformsLib.lights,
+			uColor: {value: new Color('#6495ED') },
+			uGlossiness: {value: 4}
+		}}
+		lights={true}
+	/>
+}
 const ToonShaderWithRimLights = ({ color }) => (
 	<meshToonMaterial
 		color={color}
@@ -62,7 +148,10 @@ const TestScene = () => {
 		<>
 			<Ground />
 			<Vagrant scale={2} position={[0, 17, -10]}/>
-
+			{/* <mesh position={[0, 20, -10]}>
+				<sphereGeometry args={[1]}/>
+				<CustomToonShaderMaterial />
+			</mesh> */}
 		</>
 	);
 };
@@ -75,15 +164,24 @@ export default function App() {
 				onClick={() => {
 					toggleEffects(!isEffectsOn);
 				}}
+				style={{
+					float: 'right'
+				}}
 			>
 				Effects {isEffectsOn ? "off" : "on"}
+			</button>
+			<button
+				onClick={(() => {
+
+				})}
+			>
 			</button>
 			<Canvas
 				camera={{ near: 0.1, far: 900, fov: 45, position: [-15, 25, 10]}}
 				shadows={true}
 				dpr={1}
 			>
-				{/* <Stats /> */}
+				<Stats />
 				<OrbitControls  target={new Vector3(0, 20, -10)}/>
 				{/* <fog attach="fog" args={["white", 0.1, 1500]} /> */}
 				{/* <ambientLight intensity={0.4} /> */}
