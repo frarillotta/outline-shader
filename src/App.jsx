@@ -6,21 +6,35 @@ import { EffectComposer } from "@react-three/postprocessing";
 import OutlinesAndHatchingEffect from "./post/OutlinesAndHatchingEffect";
 import { SimplexNoise } from "three/examples/jsm/math/SimplexNoise";
 import { Vagrant } from "./Vagrant";
+import { StateContextProvider } from "./StateContext";
 
 const Ground = () => {
 	const groundRef = useRef();
 	const heightfieldRef = useRef([]);
 	useLayoutEffect(() => {
 		const simplexNoise = new SimplexNoise();
-		const positions = new Float32Array(groundRef.current.geometry.attributes.position.array);
-		for(let i = 2; i < groundRef.current.geometry.attributes.position.count * 3; i+=3)	{
-			const height = simplexNoise.noise(positions.at(i - 2)  / 150, positions.at(i - 1)  / 150) * 17;
+		const positions = new Float32Array(
+			groundRef.current.geometry.attributes.position.array,
+		);
+		for (
+			let i = 2;
+			i < groundRef.current.geometry.attributes.position.count * 3;
+			i += 3
+		) {
+			const height =
+				simplexNoise.noise(
+					positions.at(i - 2) / 150,
+					positions.at(i - 1) / 150,
+				) * 17;
 			heightfieldRef.current.push(height);
 			positions[i] = height;
 		}
-		groundRef.current.geometry.setAttribute('position', new BufferAttribute(positions, 3)) // Create the Three.js BufferAttribute and specify that each information is composed of 3 values
-		groundRef.current.geometry.computeVertexNormals()
-	}, [])
+		groundRef.current.geometry.setAttribute(
+			"position",
+			new BufferAttribute(positions, 3),
+		); // Create the Three.js BufferAttribute and specify that each information is composed of 3 values
+		groundRef.current.geometry.computeVertexNormals();
+	}, []);
 	return (
 		<mesh
 			receiveShadow={true}
@@ -32,11 +46,9 @@ const Ground = () => {
 			<planeGeometry args={[1200, 1200, 600, 600]} />
 			{/* this might not be terrible with rim lights */}
 			<meshStandardMaterial color={"#415d86"} />
-
 		</mesh>
 	);
 };
-
 
 const toonVertexShader = `
 
@@ -113,45 +125,51 @@ void main() {
 `;
 
 const CustomToonShaderMaterial = () => {
-	return <shaderMaterial 
-		vertexShader={toonVertexShader}
-		fragmentShader={toonFragmentShader}
-		uniforms={{
-			...UniformsLib.lights,
-			uColor: {value: new Color('#6495ED') },
-			uGlossiness: {value: 4}
-		}}
-		lights={true}
-	/>
-}
+	return (
+		<shaderMaterial
+			vertexShader={toonVertexShader}
+			fragmentShader={toonFragmentShader}
+			uniforms={{
+				...UniformsLib.lights,
+				uColor: { value: new Color("#6495ED") },
+				uGlossiness: { value: 4 },
+			}}
+			lights={true}
+		/>
+	);
+};
+
 const ToonShaderWithRimLights = ({ color }) => (
 	<meshToonMaterial
 		color={color}
 		onBeforeCompile={(shader) => {
 			shader.fragmentShader = shader.fragmentShader.replace(
-			  '#include <dithering_fragment>', `
+				"#include <dithering_fragment>",
+				`
 			  #include <dithering_fragment>
 			  float rimLightIntensity = dot(normalize(vViewPosition), vNormal);
 			  float fresnel = pow(dot(vNormal, normalize(vViewPosition)), .4);
 			  fresnel = saturate(1. - fresnel);
 			  gl_FragColor.rgb += vec3(fresnel);
-			`)
+			`,
+			);
 		}}
 	/>
 );
 
 // softShadows();
 
-
-const TestScene = () => {
+const Scene = () => {
 	return (
 		<>
-			<Ground />
-			<Vagrant scale={2} position={[0, 17, -10]}/>
-			{/* <mesh position={[0, 20, -10]}>
-				<sphereGeometry args={[1]}/>
-				<CustomToonShaderMaterial />
-			</mesh> */}
+			<StateContextProvider>
+				<Ground />
+				<Vagrant scale={2} position={[0, 17, -10]} />
+				{/* <mesh position={[0, 20, -10]}>
+					<sphereGeometry args={[1]}/>
+					<CustomToonShaderMaterial />
+				</mesh> */}
+			</StateContextProvider>
 		</>
 	);
 };
@@ -165,29 +183,23 @@ export default function App() {
 					toggleEffects(!isEffectsOn);
 				}}
 				style={{
-					float: 'right'
+					float: "right",
 				}}
 			>
 				Effects {isEffectsOn ? "off" : "on"}
 			</button>
-			<button
-				onClick={(() => {
-
-				})}
-			>
-			</button>
 			<Canvas
-				camera={{ near: 0.1, far: 900, fov: 45, position: [-15, 25, 10]}}
+				camera={{ near: 0.1, far: 900, fov: 45, position: [-15, 25, 10] }}
 				shadows={true}
 				dpr={1}
 			>
 				<Stats />
-				<OrbitControls  target={new Vector3(0, 20, -10)}/>
+				<OrbitControls target={new Vector3(0, 20, -10)} />
 				{/* <fog attach="fog" args={["white", 0.1, 1500]} /> */}
 				{/* <ambientLight intensity={0.4} /> */}
 				<directionalLight
 					castShadow
-					color={'#c0d7d9'}
+					color={"#c0d7d9"}
 					position={[2.5, 8, 5]}
 					intensity={0.7}
 					shadow-mapSize-width={2048}
@@ -201,7 +213,7 @@ export default function App() {
 				<pointLight position={[0, -10, 0]} intensity={1} />
 				<Suspense fallback={null}>
 					{isEffectsOn && <PostEffects />}
-					<TestScene />
+					<Scene />
 				</Suspense>
 			</Canvas>
 		</>

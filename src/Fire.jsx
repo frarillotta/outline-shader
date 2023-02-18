@@ -1,16 +1,14 @@
-
 import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
-import {shaderV2 as orthoVS} from './post/shaders/ortho-vs';
+import { shaderV2 as orthoVS } from "./post/shaders/ortho-vs";
 import { useRef } from "react";
 
 const fireBillboardUniforms = {
 	time: {
-		value: 0
+		value: 0,
 	},
-}
+};
 export const Fire = (props) => {
-
 	const fragmentShader = `
 		precision highp float;
 	
@@ -109,35 +107,40 @@ export const Fire = (props) => {
 	`;
 	const ref = useRef();
 
-	useFrame(({clock}) => {
-		fireBillboardUniforms.time.value = clock.elapsedTime
-	})
+	useFrame(({ clock }) => {
+		fireBillboardUniforms.time.value = clock.elapsedTime;
+	});
 
-	return <group {...props}>
-		<pointLight 
-            castShadow 
-            position={[0, 0, 0]} 
-            args={['red', 20, 30, 3]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            shadow-camera-far={10}
-            shadow-bias={-0.009}
-            shadow-camera-left={-5}
-            shadow-camera-right={5}
-            shadow-camera-top={5}
-            shadow-camera-bottom={-5}
-            
-        />
-		{/* <mesh receiveShadow castShadow position={[-1.4, -0.7, -4]}>
+	return (
+		<group {...props}>
+			<pointLight
+				castShadow
+				position={[0, 0, 0]}
+				args={["red", 20, 30, 3]}
+				shadow-mapSize-width={2048}
+				shadow-mapSize-height={2048}
+				shadow-camera-far={10}
+				shadow-bias={-0.005}
+				shadow-camera-left={-5}
+				shadow-camera-right={5}
+				shadow-camera-top={5}
+				shadow-camera-bottom={-5}
+			/>
+			{/* <mesh receiveShadow castShadow position={[-1.4, -0.7, -4]}>
 			<sphereBufferGeometry args={[0.4]} />
 			<meshBasicMaterial color="white" />
 		</mesh> */}
-		<Billboard  >
-			<mesh layers={1} ref={ref}  scale={[2, 4, 2]}>
-				<planeGeometry computeVertexNormals={false} args={[1, 1]} />
-				<shaderMaterial transparent={true} uniforms={fireBillboardUniforms} fragmentShader={fragmentShader} vertexShader={orthoVS}/>
-			</mesh>
-		</Billboard>
-	</group>
-
-}
+			<Billboard>
+				<mesh layers={1} ref={ref} scale={[1.75, 2.8, 2]}>
+					<planeGeometry computeVertexNormals={false} args={[1, 1]} />
+					<shaderMaterial
+						transparent={true}
+						uniforms={fireBillboardUniforms}
+						fragmentShader={fragmentShader}
+						vertexShader={orthoVS}
+					/>
+				</mesh>
+			</Billboard>
+		</group>
+	);
+};
