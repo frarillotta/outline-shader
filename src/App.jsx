@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useRef, useState, useLayoutEffect } from "react";
 import { OrbitControls, Stats } from "@react-three/drei";
-import { BufferAttribute, Vector3, Color, UniformsLib } from "three";
+import { BufferAttribute, Vector3, Color, UniformsLib, Vector2 } from "three";
 import { EffectComposer } from "@react-three/postprocessing";
 import OutlinesAndHatchingEffect from "./post/OutlinesAndHatchingEffect";
 import { SimplexNoise } from "three/examples/jsm/math/SimplexNoise";
@@ -21,11 +21,14 @@ const Ground = () => {
 			i < groundRef.current.geometry.attributes.position.count * 3;
 			i += 3
 		) {
+			const xypos = new Vector2(positions.at(i - 2), positions.at(i - 1));
+			const dist = xypos.distanceTo(new Vector2(0, 0));
 			const height =
 				simplexNoise.noise(
-					positions.at(i - 2) / 150,
-					positions.at(i - 1) / 150,
-				) * 17;
+					positions.at(i - 2) / 500,
+					positions.at(i - 1) / 500,
+					// ) * 17;
+				) * (dist) ** 0.65;
 			heightfieldRef.current.push(height);
 			positions[i] = height;
 		}
@@ -43,7 +46,7 @@ const Ground = () => {
 			position={[0, -2, 0]}
 			ref={groundRef}
 		>
-			<planeGeometry args={[1200, 1200, 600, 600]} />
+			<planeGeometry args={[2000, 2000, 750, 750]} />
 			{/* this might not be terrible with rim lights */}
 			<meshStandardMaterial color={"#415d86"} />
 		</mesh>
@@ -189,10 +192,11 @@ export default function App() {
 				Effects {isEffectsOn ? "off" : "on"}
 			</button>
 			<Canvas
-				camera={{ near: 0.1, far: 900, fov: 45, position: [-15, 25, 10] }}
+				camera={{ near: 0.1, far: 3000, fov: 45, position: [-15, 25, 10] }}
 				shadows={true}
 				dpr={1}
 			>
+			<fog attach="fog" args={['#1352bf', 1, 2000]} />
 				<Stats />
 				<OrbitControls target={new Vector3(0, 20, -10)} />
 				{/* <fog attach="fog" args={["white", 0.1, 1500]} /> */}
@@ -200,15 +204,15 @@ export default function App() {
 				<directionalLight
 					castShadow
 					color={"#c0d7d9"}
-					position={[2.5, 8, 5]}
+					position={[2.5, 20, 25]}
 					intensity={0.7}
 					shadow-mapSize-width={2048}
 					shadow-mapSize-height={2048}
-					shadow-camera-far={50}
-					shadow-camera-left={-10}
-					shadow-camera-right={10}
-					shadow-camera-top={10}
-					shadow-camera-bottom={-10}
+					shadow-camera-far={2000}
+					shadow-camera-left={-30}
+					shadow-camera-right={30}
+					shadow-camera-top={30}
+					shadow-camera-bottom={-30}
 				/>
 				<pointLight position={[0, -10, 0]} intensity={1} />
 				<Suspense fallback={null}>

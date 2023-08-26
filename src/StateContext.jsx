@@ -15,14 +15,14 @@ export const StateContextProvider = ({ children }) => {
 		movingTowards: null,
 	});
 
-	useFrame(({ camera }) => {
-		if (stateContextState.movingTowards) {
-			camera.position.lerp(stateContextState.movingTowards, 0.05);
-			if (camera.position.equals(stateContextState.movingTowards)) {
-				setStateContext({ ...stateContextState, movingTowards: null });
-			}
-		}
-	});
+	// useFrame(({ camera }) => {
+	// 	if (stateContextState.movingTowards) {
+	// 		camera.position.lerp(stateContextState.movingTowards, 0.05);
+	// 		if (camera.position.equals(stateContextState.movingTowards)) {
+	// 			setStateContext({ ...stateContextState, movingTowards: null });
+	// 		}
+	// 	}
+	// });
 
 	return (
 		<StateContext.Provider

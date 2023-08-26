@@ -185,7 +185,7 @@ const fragmentShader = `
     float depth = readDepth( depthTexture, vUv );
     vec2 oUv = vec2(vUv);
     // add a bit of a wiggle guvna?
-    oUv += (snoise(oUv * 3.5) / 250.) * (1. - depth);
+    oUv += (snoise(oUv * 3.5 * (1. - depth)) / 250.) * (1. - depth);
 
     float edgeThickness = pow(1. - depth, 5.) * thickness;
     float normalEdge = length(sobel(normalTexture, oUv, size, edgeThickness)) * .77;

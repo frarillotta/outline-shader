@@ -237,6 +237,7 @@ export function Vagrant(props) {
 				<Sphere />
 				<Fire position={[1.2, 3.6, 4.5]} />
 				<group
+					castShadow
 					position={[0.67, 0.55, 0.45]}
 					scale={[2.58, 2.08, 2.08]}
 					onClick={(e) => {
@@ -246,6 +247,7 @@ export function Vagrant(props) {
 				>
 					<primitive object={nodes.spine} />
 					<group
+						castShadow
 						position={[0, -0.01, 0]}
 						rotation={[Math.PI / 2, 0, 0]}
 						scale={[0.39, 0.48, 0.48]}
