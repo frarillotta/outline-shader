@@ -181,7 +181,7 @@ export default function App() {
 	const [isEffectsOn, toggleEffects] = useState(true);
 	return (
 		<>
-			<button
+			{/* <button
 				onClick={() => {
 					toggleEffects(!isEffectsOn);
 				}}
@@ -190,7 +190,7 @@ export default function App() {
 				}}
 			>
 				Effects {isEffectsOn ? "off" : "on"}
-			</button>
+			</button> */}
 			<Canvas
 				camera={{ near: 0.1, far: 3000, fov: 45, position: [-15, 25, 10] }}
 				shadows={true}
