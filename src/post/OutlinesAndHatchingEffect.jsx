@@ -185,10 +185,10 @@ const fragmentShader = `
     float depth = readDepth( depthTexture, vUv );
     vec2 oUv = vec2(vUv);
     // add a bit of a wiggle guvna?
-    oUv += (snoise(oUv * 3.5 * (1. - depth)) / 250.) * (1. - depth);
+    oUv += (snoise(oUv * 5.5 * (1. - depth)) / 250.) * (1. - depth);
 
-    float edgeThickness = pow(1. - depth, 5.) * thickness;
-    float normalEdge = length(sobel(normalTexture, oUv, size, edgeThickness)) * .77;
+    float edgeThickness = max(0.5, pow(1. - depth, 5.) * thickness);
+    float normalEdge = length(sobel(normalTexture, oUv, size, edgeThickness)) * .57;
     normalEdge = 1. - aastep(.5, normalEdge);
 
     //not sure i want this?
@@ -197,11 +197,11 @@ const fragmentShader = `
     // straightNormalEdge = 1. - aastep(.5, straightNormalEdge);
     // normalEdge = min(normalEdge, straightNormalEdge);
 
-    float depthEdge = length(sobelDepth( depthTexture, oUv, size, edgeThickness ));
+    float depthEdge = length(sobelDepth( depthTexture, oUv, size, edgeThickness )) * 10.;
     depthEdge = 1. - aastep(.5, depthEdge);
 
     float colorEdge = length(sobel(colorTexture, oUv, size, .5));
-    colorEdge = 1. - aastep(.75, colorEdge);
+    colorEdge = 1. - aastep(.5, colorEdge);
 
     vec3 edgeColor = vec3( min(normalEdge, depthEdge) );
     edgeColor = min(edgeColor, colorEdge);

@@ -196,7 +196,7 @@ export default function App() {
 				shadows={true}
 				dpr={1}
 			>
-			<fog attach="fog" args={['#1352bf', 1, 2000]} />
+			<fog attach="fog" args={['#1352bf', 1, 200]} />
 				<Stats />
 				<OrbitControls target={new Vector3(0, 20, -10)} />
 				{/* <fog attach="fog" args={["white", 0.1, 1500]} /> */}
